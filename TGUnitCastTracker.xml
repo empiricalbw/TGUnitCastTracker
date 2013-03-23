@@ -1,0 +1,256 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+    <Script file="TGUnitCastTracker.lua"/>
+    
+    <FontString name="TGUnitCastTrackerFont" font="Interface\AddOns\TGUF_2\Fonts\DUF_Font1.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="10"/>
+        </FontHeight>
+        <Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+    </FontString>
+    
+    <Frame name="TGUnitCastTrackerBar" virtual="true">
+        <Frames>
+            <Frame name="$parentIcon" visible="true">
+                <Size>
+                    <AbsDimension x="14" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture name="$parentTexture" setAllPoints="true"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame name="$parentSizeFrame">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentIcon" relativePoint="TOPRIGHT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString name="$parentText" inherits="TGUnitCastTrackerFont" justifyH="LEFT" justifyV="CENTER" setAllPoints="true"/>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame name="$parentBar">
+                <Size>
+                    <AbsDimension x="100"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentIcon" relativePoint="TOPRIGHT"/>
+                    <Anchor point="BOTTOM"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentTexture" file="Interface\AddOns\TGUF_2\DUF_Images\bg" setAllPoints="true"/>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture name="$parentSpark" file="Interface\CastingBar\UI-CastingBar-Spark" alphaMode="ADD">
+                            <Size>
+                                <AbsDimension x="32" y="32"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="CENTER" relativePoint="RIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture setAllPoints="true">
+                    <Color r="0" g="0" b="0" a="0.5"/>
+                </Texture>      
+            </Layer>
+        </Layers>
+    </Frame>
+    
+    <!-- This frame is a generic unit element -->
+    <Frame name="TGUnitCastTracker" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent">
+        <Size>
+            <AbsDimension x="200" y="24"/>
+        </Size>
+        <Anchors>
+            <Anchor point="TOPLEFT">
+                <Offset><AbsDimension x="925" y="-900"/></Offset>
+            </Anchor>
+        </Anchors>
+        <Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
+            <Color r="1" g="1" b="1" a="1"/>
+            <EdgeSize>
+                <AbsValue val="20"/>
+            </EdgeSize>
+        </Backdrop>
+        <Frames>
+            <Frame name="$parentBackground">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset><AbsDimension x="6" y="-6"/></Offset>
+                    </Anchor>
+                    <Anchor point="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="-6" y="6"/></Offset>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture name = "$parentTexture" setAllPoints="true">
+                            <Color r="0" g="0" b="0" a="1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame name="$parentBar1" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBackground" relativePoint="TOPLEFT"/>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBackground" relativePoint="TOPRIGHT"/>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar2" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar1" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar1" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar3" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar2" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar2" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar4" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar3" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar3" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar5" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar4" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar4" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar6" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar5" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar5" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar7" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar6" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar6" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar8" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar7" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar7" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar9" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar8" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar8" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+            <Frame name="$parentBar10" inherits="TGUnitCastTrackerBar">
+                <Size>
+                    <AbsDimension x="10" y="14"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBar9" relativePoint="BOTTOMLEFT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                    <Anchor point="TOPRIGHT" relativeTo="$parentBar9" relativePoint="BOTTOMRIGHT">
+                        <Offset><AbsDimension x="0" y="-1"/></Offset>
+                    </Anchor>
+                </Anchors>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnMouseUp>
+                if ( self.isMoving ) then
+                    self:StopMovingOrSizing();
+                    self.isMoving = false;
+                end
+            </OnMouseUp>
+            <OnMouseDown>
+                if ( ( ( not self.isLocked ) or ( self.isLocked == 0 ) ) and ( arg1 == "LeftButton" ) ) then
+                    self:StartMoving();
+                    self.isMoving = true;
+                end
+            </OnMouseDown>
+            <OnHide>
+                if ( self.isMoving ) then
+                    self:StopMovingOrSizing();
+                    self.isMoving = false;
+                end
+            </OnHide>
+            <OnEvent>
+                TGUnitastTracker_OnEvent(event,arg1);
+            </OnEvent>
+        </Scripts>
+    </Frame>
+</Ui>

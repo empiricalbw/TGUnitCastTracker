@@ -1,0 +1,10 @@
+## Interface: 50200
+## Title: TGUnitCastTracker 1.0a1
+## DefaultState: enabled
+## Notes: Cast tracker
+## Version 1.0a1
+## Author: Holytoledo
+## URL: 
+## Dependencies: TGUnit
+## SavedVariables:
+TGUnitCastTracker.xml
