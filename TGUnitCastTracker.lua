@@ -107,6 +107,14 @@ function FreeCastByGUID(castGUID)
     end
 end
 
+function DumpCastCache()
+    local t = GetTime()
+    for k, v in pairs(CAST_CACHE) do
+        local dt = t - v.timestamp
+        print("["..tostring(dt).."s ago] "..k..": "..tostring(v.spellName))
+    end
+end
+
 function EventHandler.ADDON_LOADED()
 end
 
@@ -132,35 +140,41 @@ end
 
 function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
     local timestamp  = GetTime()
+    --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SENT"
             .." unit "..tostring(unit)
             .." targetName "..tostring(targetName)
             .." castGUID "..tostring(castGUID)
             .." spellID "..tostring(spellID)
             )
+    ]]
 
     GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
 function EventHandler.UNIT_SPELLCAST_START(unit, castGUID, spellID)
     local timestamp  = GetTime()
+    --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_START"
             .." unit "..tostring(unit)
             .." castGUID "..tostring(castGUID)
             .." spellID "..tostring(spellID)
             )
+    ]]
 
     GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
 function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     local timestamp = GetTime()
+    --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SUCCEEDED"
             .." unit"..tostring(unit)
             .." castGUID "..tostring(castGUID)
             .." spellID "..tostring(spellID)
             )
     print(" ")
+    ]]
 
     -- Find or allocate the cast and see if we care about it.
     local cast = GetOrAllocateCast(timestamp, castGUID, spellID)
@@ -172,7 +186,7 @@ function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
 
     -- Check if we are refreshing a spell.
     local refreshed = false
-    for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
+    for k, v in ipairs(TGUF_PLAYER_OT_SPELLS) do
         if (v.spellID    == cast.spellID and
             v.targetGUID == cast.targetGUID) then
             --print("Refresh "..v.castInfo.name.." with "..cast.castInfo.name.." detected!")
@@ -194,33 +208,50 @@ function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
 end
 
 function EventHandler.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
+    --[[
     TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED"
           .." unit: "..tostring(unit)
           .." castGUID: "..tostring(castGUID)
           .." spellID: "..tostring(spellID)
           )
+    ]]
     FreeCastByGUID(castGUID)
 end
 
 function EventHandler.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
-    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED"
+    --[[
+    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED_QUIET"
           .." unit: "..tostring(unit)
           .." castGUID: "..tostring(castGUID)
           .." spellID: "..tostring(spellID)
           )
+    ]]
+    FreeCastByGUID(castGUID)
+end
+
+function EventHandler.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
+    --[[
+    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_INTERRUPTED"
+          .." unit: "..tostring(unit)
+          .." castGUID: "..tostring(castGUID)
+          .." spellID: "..tostring(spellID)
+          )
+    ]]
     FreeCastByGUID(castGUID)
 end
 
 function EventHandler.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID, targetName)
+    --[[
     TGCTDbg("["..timestamp.."] TGUnitCastTracker: CLEU_UNIT_DIED "
             .." targetGUID: "..tostring(targetGUID)
             .." targetName: "..tostring(targetName)
             )
+    ]]
 
     local removedOne
     repeat
         removedOne = false
-        for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
+        for k, v in ipairs(TGUF_PLAYER_OT_SPELLS) do
             if v.targetGUID == targetGUID then
                 --print("Unit Died, freeing spell")
                 FreeCast(table.remove(TGUF_PLAYER_OT_SPELLS, k))
@@ -237,7 +268,7 @@ function EventHandler.OnUpdate()
     local currTime = GetTime()
     repeat
         removedOne = false
-        for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
+        for k, v in ipairs(TGUF_PLAYER_OT_SPELLS) do
             if (v.timestamp + v.castInfo.length <= currTime) then
                 --print("Spell expired, freeing spell!")
                 FreeCast(table.remove(TGUF_PLAYER_OT_SPELLS, k))
