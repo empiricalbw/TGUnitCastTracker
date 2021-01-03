@@ -231,7 +231,7 @@ function EventHandler.OnUpdate()
     repeat
         removedOne = false
         for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
-            if (v.startTime + v.castInfo.length <= currTime) then
+            if (v.timestamp + v.castInfo.length <= currTime) then
                 --print("Spell expired, freeing spell!")
                 FreeCast(table.remove(TGUF_PLAYER_OT_SPELLS, k))
                 removedOne = true
@@ -256,7 +256,7 @@ function EventHandler.OnUpdate()
         
         -- Get the cast bar
         local castInfo = TGUF_CAST_INFO[v.spellID]
-        local percent = (currTime - v.startTime)/v.castInfo.length
+        local percent = (currTime - v.timestamp)/v.castInfo.length
         if (percent > 1) then
             percent = 1
         end
@@ -272,7 +272,7 @@ function EventHandler.OnUpdate()
             castTrackerIcon:Show()
             castTrackerBarTexture:SetVertexColor(0.25,1,0.25,1)
             castTrackerBarFrameText:Show()
-            castTrackerBarFrameText:SetText(v.target)
+            castTrackerBarFrameText:SetText(v.targetName)
             
             local sizeFrame = _G["TGUnitCastTrackerBar"..k.."SizeFrame"]
             local realWidth = sizeFrame:GetWidth()
@@ -284,7 +284,7 @@ function EventHandler.OnUpdate()
             --print(percentWidth)
             castTrackerBarFrame:SetWidth(percentWidth);
             
-            local elapsed = currTime - v.startTime;
+            local elapsed = currTime - v.timestamp;
             if (elapsed > 0.125 and castInfo.tick ~= nil) then
                 local modulo = (elapsed % castInfo.tick)
                 if (modulo > castInfo.tick/2) then
