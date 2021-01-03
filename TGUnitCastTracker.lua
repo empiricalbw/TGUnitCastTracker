@@ -51,7 +51,6 @@ local TGUF_CAST_INFO = {
 };
 local TGUF_PLAYER_CLASS = nil
 local MAX_SPELLS = 10
-local LAST_SPELL_SENT = nil
 
 local function TGCTDbg(msg)
     --TGDbg(msg)
@@ -59,17 +58,27 @@ end
 
 EventHandler = {}
 
-function AllocateCast(timestamp, targetName, castGUID, spellID)
-    local cast
+local FREE_CASTS = {}
+local CAST_CACHE = {}
+
+function GetOrAllocateCast(timestamp, castGUID, spellID)
+    -- See if we already know about this spell.
+    local cast = CAST_CACHE[castGUID]
+    if cast ~= nil then
+        return cast
+    end
+
+    -- Find or allocate a free cast object.
     if #TGUF_FREE_CASTS > 0 then
-        cast = table.remove(TGUF_FREE_CASTS)
+        cast = table.remove(FREE_CASTS)
         assert(cast.allocated == false)
     else
         cast = {}
     end
 
+    -- Populate it.
     cast.allocated  = true
-    cast.targetName = targetName
+    cast.targetName = UnitName("target")
     cast.targetGUID = UnitGUID("target")
     cast.castInfo   = TGUF_CAST_INFO[spellID]
     cast.castGUID   = castGUID
@@ -77,14 +86,25 @@ function AllocateCast(timestamp, targetName, castGUID, spellID)
     cast.timestamp  = timestamp
     cast.spellName  = GetSpellInfo(spellID)
 
+    -- Record it and return.
+    CAST_CACHE[castGUID] = cast
     return cast
 end
 
 function FreeCast(cast)
     assert(cast.allocated == true)
+    assert(CAST_CACHE[cast.castGUID] == cast)
 
-    cast.allocated = false
-    table.insert(TGUF_FREE_CASTS, cast)
+    cast.allocated            = false
+    CAST_CACHE[cast.castGUID] = nil
+    table.insert(FREE_CASTS, cast)
+end
+
+function FreeCastByGUID(castGUID)
+    local cast = CAST_CACHE[castGUID]
+    if cast then
+        FreeCast(cast)
+    end
 end
 
 function EventHandler.ADDON_LOADED()
@@ -112,7 +132,6 @@ end
 
 function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
     local timestamp  = GetTime()
-    --TGDbg("Spell sent: "..tostring(name))
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SENT"
             .." unit "..tostring(unit)
             .." targetName "..tostring(targetName)
@@ -120,10 +139,18 @@ function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
             .." spellID "..tostring(spellID)
             )
 
-    cast = AllocateCast(timestamp, targetName, castGUID, spellID)
+    GetOrAllocateCast(timestamp, castGUID, spellID)
+end
 
-    LAST_SPELL_SENT = cast.spellName
-    TGUF_PLAYER_CAST[castGUID] = cast
+function EventHandler.UNIT_SPELLCAST_START(unit, castGUID, spellID)
+    local timestamp  = GetTime()
+    TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_START"
+            .." unit "..tostring(unit)
+            .." castGUID "..tostring(castGUID)
+            .." spellID "..tostring(spellID)
+            )
+
+    GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
 function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
@@ -134,44 +161,32 @@ function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
             .." spellID "..tostring(spellID)
             )
     print(" ")
-    local name = GetSpellInfo(spellID)
 
-    -- Pop the cast out of our pending casts.  It's possible for this to be
-    -- nil, for instance shooting a wand gives us a single SENT event followed
-    -- by streaming SUCCEEDED events.
-    local playerCast = TGUF_PLAYER_CAST[castGUID]
-    if playerCast == nil then
-        TGDbg("Unsent spell succeeded: "..tostring(name).." (last sent was "..tostring(LAST_SPELL_SENT)..")")
+    -- Find or allocate the cast and see if we care about it.
+    local cast = GetOrAllocateCast(timestamp, castGUID, spellID)
+    if not cast.castInfo then
+        --print("Not a tracked spell!")
+        FreeCast(cast)
         return
     end
-    --TGDbg("Sent spell succeeded: "..tostring(name))
-    TGUF_PLAYER_CAST[castGUID] = nil
 
-    if playerCast.castInfo then
-        -- Record the spell start time.
-        playerCast.startTime = timestamp
-
-        -- Check if we are refreshing a spell.
-        local refreshed = false
-        for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
-            if (v.spellID    == playerCast.spellID and
-                v.targetGUID == playerCast.targetGUID) then
-                --print("Refresh "..v.castInfo.name.." with "..playerCast.castInfo.name.." detected!")
-                FreeCast(v)
-                TGUF_PLAYER_OT_SPELLS[k] = playerCast
-                refreshed = true
-                break
-            end
+    -- Check if we are refreshing a spell.
+    local refreshed = false
+    for k, v in pairs(TGUF_PLAYER_OT_SPELLS) do
+        if (v.spellID    == cast.spellID and
+            v.targetGUID == cast.targetGUID) then
+            --print("Refresh "..v.castInfo.name.." with "..cast.castInfo.name.." detected!")
+            FreeCast(v)
+            TGUF_PLAYER_OT_SPELLS[k] = cast
+            refreshed = true
+            break
         end
+    end
 
-        -- If we aren't refreshing, insert the new one.
-        if not refreshed then
-            --print("New cast detected!")
-            table.insert(TGUF_PLAYER_OT_SPELLS, playerCast)
-        end
-    else
-        --print("Not a tracked spell!")
-        FreeCast(playerCast)
+    -- If we aren't refreshing, insert the new one.
+    if not refreshed then
+        --print("New cast detected!")
+        table.insert(TGUF_PLAYER_OT_SPELLS, cast)
     end
 
     TGUnitCastTracker:Show()
@@ -184,11 +199,7 @@ function EventHandler.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
           .." castGUID: "..tostring(castGUID)
           .." spellID: "..tostring(spellID)
           )
-    local playerCast = TGUF_PLAYER_CAST[castGUID]
-    TGUF_PLAYER_CAST[castGUID] = nil
-    if playerCast then
-        FreeCast(playerCast)
-    end
+    FreeCastByGUID(castGUID)
 end
 
 function EventHandler.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
@@ -197,11 +208,7 @@ function EventHandler.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
           .." castGUID: "..tostring(castGUID)
           .." spellID: "..tostring(spellID)
           )
-    local playerCast = TGUF_PLAYER_CAST[castGUID]
-    TGUF_PLAYER_CAST[castGUID] = nil
-    if playerCast then
-        FreeCast(playerCast)
-    end
+    FreeCastByGUID(castGUID)
 end
 
 function EventHandler.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID, targetName)
@@ -314,4 +321,4 @@ function EventHandler.OnUpdate()
     TGUnitCastTracker:SetHeight(11 + numSpells*15)
 end
 
-TGEventHandler.Register(EventHandler)
+TGEventManager.Register(EventHandler)

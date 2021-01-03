@@ -1,10 +1,12 @@
-## Interface: 50200
-## Title: TGUnitCastTracker 1.0a1
+## Interface: 11306
+## Title: TGUnitCastTracker
+## Author: Holytoledo
+## Version 1.0
 ## DefaultState: enabled
 ## Notes: Cast tracker
-## Version 1.0a1
-## Author: Holytoledo
 ## URL: 
-## Dependencies: TGUnit
+## Dependencies: TGEventManager
 ## SavedVariables:
+
+TGUnitCastTracker.lua
 TGUnitCastTracker.xml

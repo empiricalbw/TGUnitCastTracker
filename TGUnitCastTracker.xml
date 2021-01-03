@@ -1,6 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
-    <Script file="TGUnitCastTracker.lua"/>
-    
     <FontString name="TGUnitCastTrackerFont" font="Interface\AddOns\TGUF_2\Fonts\DUF_Font1.ttf" virtual="true">
         <FontHeight>
             <AbsValue val="10"/>
