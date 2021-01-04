@@ -1,7 +1,9 @@
-TGUF_PLAYER_CAST      = {}
-TGUF_PLAYER_OT_SPELLS = {}
-TGUF_FREE_CASTS       = {}
-local TGUF_CAST_INFO = {
+local TGUF_PLAYER_CAST      = {}
+local TGUF_PLAYER_OT_SPELLS = {}
+local TGUF_FREE_CASTS       = {}
+local MAX_SPELLS            = 10
+
+local TGUF_OT_SPELL_DB = {
     --[[
     ["Renew"] = {length = 15, texture = "Interface\\Icons\\Spell_Holy_Renew", tick = 3},
     ["Rejuvenation"] = {length = 12, texture = "Interface\\Icons\\Spell_Nature_Rejuvenation", tick = 3},
@@ -13,44 +15,81 @@ local TGUF_CAST_INFO = {
     ]]--
 
     -- Immolate
-    [348]   = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [707]   = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [1094]  = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [2941]  = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [11665] = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [11667] = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [11668] = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
-    [25309] = {name = "Immolate", length = 15, texture = "Interface\\Icons\\Spell_Fire_Immolation", tick = 3},
+    {
+        name    = "Immolate",
+        texture = "Interface\\Icons\\Spell_Fire_Immolation",
+        tick    = 3,
+        ranks   = {
+            [348]   = {length = 15},
+            [707]   = {length = 15},
+            [1094]  = {length = 15},
+            [2941]  = {length = 15},
+            [11665] = {length = 15},
+            [11667] = {length = 15},
+            [11668] = {length = 15},
+            [25309] = {length = 15},
+        },
+    },
 
     -- Corruption
-    [172]   = {name = "Corruption", length = 12, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [6222]  = {name = "Corruption", length = 15, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [6223]  = {name = "Corruption", length = 18, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [7648]  = {name = "Corruption", length = 18, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [11671] = {name = "Corruption", length = 18, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [11672] = {name = "Corruption", length = 18, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
-    [25311] = {name = "Corruption", length = 18, texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion", tick = 3},
+    {
+        name    = "Corruption",
+        texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion",
+        tick    = 3,
+        ranks   = {
+            [172]   = {length = 12},
+            [6222]  = {length = 15},
+            [6223]  = {length = 18},
+            [7648]  = {length = 18},
+            [11671] = {length = 18},
+            [11672] = {length = 18},
+            [25311] = {length = 18},
+        },
+    },
 
     -- Curse of Agony
-    [980]   = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
-    [1014]  = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
-    [6217]  = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
-    [11711] = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
-    [11712] = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
-    [11713] = {name = "Curse of Agony", length = 24, texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras", tick = 2},
+    {
+        name    = "Curse of Agony",
+        texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras",
+        tick    = 2,
+        ranks   = {
+            [980]   = {length = 24},
+            [1014]  = {length = 24},
+            [6217]  = {length = 24},
+            [11711] = {length = 24},
+            [11712] = {length = 24},
+            [11713] = {length = 24},
+        },
+    },
 
     -- Siphon Life
-    [18265] = {name = "Siphon Life", length = 30, texture = "Interface\\Icons\\Spell_Shadow_Requiem", tick = 3},
-    [18879] = {name = "Siphon Life", length = 30, texture = "Interface\\Icons\\Spell_Shadow_Requiem", tick = 3},
-    [18880] = {name = "Siphon Life", length = 30, texture = "Interface\\Icons\\Spell_Shadow_Requiem", tick = 3},
-    [18881] = {name = "Siphon Life", length = 30, texture = "Interface\\Icons\\Spell_Shadow_Requiem", tick = 3},
-
+    {
+        name    = "Siphon Life",
+        texture = "Interface\\Icons\\Spell_Shadow_Requiem",
+        tick    = 3,
+        ranks   = {
+            [18265] = {length = 30},
+            [18879] = {length = 30},
+            [18880] = {length = 30},
+            [18881] = {length = 30},
+        },
+    },
     --[[
     ["Lacerate"] = {length = 15, texture = "Interface\\Icons\\Ability_Druid_Lacerate", tick = 3},
     ]]--
-};
-local TGUF_PLAYER_CLASS = nil
-local MAX_SPELLS = 10
+}
+
+local TGUF_CAST_INFO = {}
+for _, s in ipairs(TGUF_OT_SPELL_DB) do
+    for spellID, r in pairs(s.ranks) do
+        TGUF_CAST_INFO[spellID] = {
+            name    = s.name,
+            texture = s.texture,
+            tick    = s.tick,
+            length  = r.length,
+        }
+    end
+end
 
 local function TGCTDbg(msg)
     --TGDbg(msg)
@@ -116,26 +155,6 @@ function DumpCastCache()
 end
 
 function EventHandler.ADDON_LOADED()
-end
-
-function EventHandler.PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi)
-    TGCTDbg("TGUnitCastTracker: PLAYER_ENTERING_WORLD isInitialLogin "..tostring(isInitialLogin)..
-            " isReloadingUi "..tostring(isReloadingUi))
-
-    _, TGUF_PLAYER_CLASS = UnitClass("player");
-    --[[
-    if (TGUF_PLAYER_CLASS == "PRIEST") then
-        for tab=1,GetNumTalentTabs() do
-            for talent=1,GetNumTalents(tab) do
-                local   name,icon,_,_,rank = GetTalentInfo(tab,talent);
-                if (name == "Improved Shadow Word: Pain") then
-                    --TGUFMsg("Player has rank "..rank.." of Improved Shadow Word: Pain ("..icon..")");
-                    TGUF_CAST_INFO["Shadow Word: Pain"].length = TGUF_CAST_INFO["Shadow Word: Pain"].length + 3*rank;
-                end
-            end
-        end
-    end
-    ]]
 end
 
 function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
