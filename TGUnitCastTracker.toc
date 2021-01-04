@@ -8,5 +8,6 @@
 ## Dependencies: TGEventManager
 ## SavedVariables:
 
+spell_db.lua
 TGUnitCastTracker.lua
 TGUnitCastTracker.xml
