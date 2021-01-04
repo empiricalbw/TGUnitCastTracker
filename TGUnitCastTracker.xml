@@ -1,12 +1,12 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
-    <FontString name="TGUnitCastTrackerFont" font="Interface\AddOns\TGUF_2\Fonts\DUF_Font1.ttf" virtual="true">
+    <FontString name="TGUCTFont" font="Interface\AddOns\TGUF_2\Fonts\DUF_Font1.ttf" virtual="true">
         <FontHeight>
             <AbsValue val="10"/>
         </FontHeight>
         <Color r="1.0" g="1.0" b="1.0" a="1.0"/>
     </FontString>
     
-    <Frame name="TGUnitCastTrackerBar" virtual="true">
+    <Frame name="TGUCTBar" virtual="true">
         <Frames>
             <Frame name="$parentIcon" visible="true">
                 <Size>
@@ -28,7 +28,7 @@
                 </Anchors>
                 <Layers>
                     <Layer level="OVERLAY">
-                        <FontString name="$parentText" inherits="TGUnitCastTrackerFont" justifyH="LEFT" justifyV="CENTER" setAllPoints="true"/>
+                        <FontString name="$parentText" inherits="TGUCTFont" justifyH="LEFT" justifyV="CENTER" setAllPoints="true"/>
                     </Layer>
                 </Layers>
             </Frame>
@@ -67,7 +67,7 @@
     </Frame>
     
     <!-- This frame is a generic unit element -->
-    <Frame name="TGUnitCastTracker" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent">
+    <Frame name="TGUCTFrame" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent">
         <Size>
             <AbsDimension x="200" y="24"/>
         </Size>
@@ -100,7 +100,7 @@
                     </Layer>
                 </Layers>
             </Frame>
-            <Frame name="$parentBar1" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar1" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -109,7 +109,7 @@
                     <Anchor point="TOPRIGHT" relativeTo="$parentBackground" relativePoint="TOPRIGHT"/>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar2" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar2" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -122,7 +122,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar3" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar3" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -135,7 +135,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar4" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar4" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -148,7 +148,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar5" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar5" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -161,7 +161,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar6" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar6" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -174,7 +174,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar7" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar7" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -187,7 +187,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar8" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar8" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -200,7 +200,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar9" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar9" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>
@@ -213,7 +213,7 @@
                     </Anchor>
                 </Anchors>
             </Frame>
-            <Frame name="$parentBar10" inherits="TGUnitCastTrackerBar">
+            <Frame name="$parentBar10" inherits="TGUCTBar">
                 <Size>
                     <AbsDimension x="10" y="14"/>
                 </Size>

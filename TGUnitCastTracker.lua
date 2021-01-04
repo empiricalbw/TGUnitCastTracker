@@ -1,25 +1,24 @@
-
-local function TGCTDbg(msg)
-    --TGDbg(msg)
-end
-
-EventHandler = {
+TGUCT = {
     free_casts     = {},
     cast_cache     = {},
     tracked_spells = {},
     spell_frames   = {},
 }
 
-function EventHandler.GetOrAllocateCast(timestamp, castGUID, spellID)
+local function TGCTDbg(msg)
+    --TGDbg(msg)
+end
+
+function TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
     -- See if we already know about this spell.
-    local cast = EventHandler.cast_cache[castGUID]
+    local cast = TGUCT.cast_cache[castGUID]
     if cast ~= nil then
         return cast
     end
 
     -- Find or allocate a free cast object.
-    if #EventHandler.free_casts > 0 then
-        cast = table.remove(EventHandler.free_casts)
+    if #TGUCT.free_casts > 0 then
+        cast = table.remove(TGUCT.free_casts)
         assert(cast.allocated == false)
     else
         cast = {}
@@ -36,42 +35,42 @@ function EventHandler.GetOrAllocateCast(timestamp, castGUID, spellID)
     cast.spellName  = GetSpellInfo(spellID)
 
     -- Record it and return.
-    EventHandler.cast_cache[castGUID] = cast
+    TGUCT.cast_cache[castGUID] = cast
     return cast
 end
 
-function EventHandler.FreeCast(cast)
+function TGUCT.FreeCast(cast)
     assert(cast.allocated == true)
-    assert(EventHandler.cast_cache[cast.castGUID] == cast)
+    assert(TGUCT.cast_cache[cast.castGUID] == cast)
 
     cast.allocated            = false
-    EventHandler.cast_cache[cast.castGUID] = nil
-    table.insert(EventHandler.free_casts, cast)
+    TGUCT.cast_cache[cast.castGUID] = nil
+    table.insert(TGUCT.free_casts, cast)
 end
 
-function EventHandler.FreeCastByGUID(castGUID)
-    local cast = EventHandler.cast_cache[castGUID]
+function TGUCT.FreeCastByGUID(castGUID)
+    local cast = TGUCT.cast_cache[castGUID]
     if cast then
-        EventHandler.FreeCast(cast)
+        TGUCT.FreeCast(cast)
     end
 end
 
-function EventHandler.DumpCastCache()
+function TGUCT.DumpCastCache()
     local t = GetTime()
-    for k, v in pairs(EventHandler.cast_cache) do
+    for k, v in pairs(TGUCT.cast_cache) do
         local dt = t - v.timestamp
         print("["..tostring(dt).."s ago] "..k..": "..tostring(v.spellName))
     end
 end
 
-function EventHandler.ADDON_LOADED(addOnName)
+function TGUCT.ADDON_LOADED(addOnName)
     if addOnName ~= "TGUnitCastTracker" then
         return
     end
 
     local k = 1
     while true do
-        local prefix = "TGUnitCastTrackerBar"..k
+        local prefix = "TGUCTFrameBar"..k
         local spell_frames = {
             castTrackerBar          = _G[prefix],
             castTrackerIcon         = _G[prefix.."IconTexture"],
@@ -85,13 +84,13 @@ function EventHandler.ADDON_LOADED(addOnName)
             break
         end
 
-        table.insert(EventHandler.spell_frames, spell_frames)
+        table.insert(TGUCT.spell_frames, spell_frames)
 
         k = k + 1
     end
 end
 
-function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
     local timestamp = GetTime()
     --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SENT"
@@ -102,10 +101,10 @@ function EventHandler.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
             )
     ]]
 
-    EventHandler.GetOrAllocateCast(timestamp, castGUID, spellID)
+    TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
-function EventHandler.UNIT_SPELLCAST_START(unit, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_START(unit, castGUID, spellID)
     local timestamp = GetTime()
     --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_START"
@@ -115,10 +114,10 @@ function EventHandler.UNIT_SPELLCAST_START(unit, castGUID, spellID)
             )
     ]]
 
-    EventHandler.GetOrAllocateCast(timestamp, castGUID, spellID)
+    TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
-function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     local timestamp = GetTime()
     --[[
     TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SUCCEEDED"
@@ -130,21 +129,21 @@ function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     ]]
 
     -- Find or allocate the cast and see if we care about it.
-    local cast = EventHandler.GetOrAllocateCast(timestamp, castGUID, spellID)
+    local cast = TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
     if not cast.castInfo then
         --print("Not a tracked spell!")
-        EventHandler.FreeCast(cast)
+        TGUCT.FreeCast(cast)
         return
     end
 
     -- Check if we are refreshing a spell.
     local refreshed = false
-    for k, v in ipairs(EventHandler.tracked_spells) do
+    for k, v in ipairs(TGUCT.tracked_spells) do
         if (v.spellID    == cast.spellID and
             v.targetGUID == cast.targetGUID) then
             --print("Refresh "..v.castInfo.name.." with "..cast.castInfo.name.." detected!")
-            EventHandler.FreeCast(v)
-            EventHandler.tracked_spells[k] = cast
+            TGUCT.FreeCast(v)
+            TGUCT.tracked_spells[k] = cast
             refreshed = true
             break
         end
@@ -153,14 +152,14 @@ function EventHandler.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     -- If we aren't refreshing, insert the new one.
     if not refreshed then
         --print("New cast detected!")
-        table.insert(EventHandler.tracked_spells, cast)
+        table.insert(TGUCT.tracked_spells, cast)
     end
 
-    TGUnitCastTracker:Show()
-    EventHandler.OnUpdate()
+    TGUCTFrame:Show()
+    TGUCT.OnUpdate()
 end
 
-function EventHandler.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
     --[[
     TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED"
           .." unit: "..tostring(unit)
@@ -168,10 +167,10 @@ function EventHandler.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
           .." spellID: "..tostring(spellID)
           )
     ]]
-    EventHandler.FreeCastByGUID(castGUID)
+    TGUCT.FreeCastByGUID(castGUID)
 end
 
-function EventHandler.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
     --[[
     TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED_QUIET"
           .." unit: "..tostring(unit)
@@ -179,10 +178,10 @@ function EventHandler.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
           .." spellID: "..tostring(spellID)
           )
     ]]
-    EventHandler.FreeCastByGUID(castGUID)
+    TGUCT.FreeCastByGUID(castGUID)
 end
 
-function EventHandler.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
+function TGUCT.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
     --[[
     TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_INTERRUPTED"
           .." unit: "..tostring(unit)
@@ -190,10 +189,10 @@ function EventHandler.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
           .." spellID: "..tostring(spellID)
           )
     ]]
-    EventHandler.FreeCastByGUID(castGUID)
+    TGUCT.FreeCastByGUID(castGUID)
 end
 
-function EventHandler.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
+function TGUCT.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
                                      targetName)
     --[[
     TGCTDbg("["..timestamp.."] TGUnitCastTracker: CLEU_UNIT_DIED "
@@ -205,11 +204,11 @@ function EventHandler.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
     local removedOne
     repeat
         removedOne = false
-        for k, v in ipairs(EventHandler.tracked_spells) do
+        for k, v in ipairs(TGUCT.tracked_spells) do
             if v.targetGUID == targetGUID then
                 --print("Unit Died, freeing spell")
-                EventHandler.FreeCast(
-                    table.remove(EventHandler.tracked_spells, k))
+                TGUCT.FreeCast(
+                    table.remove(TGUCT.tracked_spells, k))
                 removedOne = true
                 break
             end
@@ -217,17 +216,17 @@ function EventHandler.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
     until(removedOne == false)
 end
 
-function EventHandler.OnUpdate()
+function TGUCT.OnUpdate()
     -- Start by removing any old spells from the casting list
     local removedOne
     local currTime = GetTime()
     repeat
         removedOne = false
-        for k, v in ipairs(EventHandler.tracked_spells) do
+        for k, v in ipairs(TGUCT.tracked_spells) do
             if (v.timestamp + v.castInfo.length <= currTime) then
                 --print("Spell expired, freeing spell!")
-                EventHandler.FreeCast(
-                    table.remove(EventHandler.tracked_spells, k))
+                TGUCT.FreeCast(
+                    table.remove(TGUCT.tracked_spells, k))
                 removedOne = true
                 break
             end
@@ -235,20 +234,20 @@ function EventHandler.OnUpdate()
     until(removedOne == false)
     
     -- If we have no more spells, we are done
-    local numSpells = #EventHandler.tracked_spells
+    local numSpells = #TGUCT.tracked_spells
     if (numSpells == 0) then
-        TGUnitCastTracker:Hide()
+        TGUCTFrame:Hide()
         return
     end
 
     -- Okay, we need to display spells, limited to the number of available
     -- frames.
-    if (numSpells > #EventHandler.spell_frames) then
-        numSpells = #EventHandler.spell_frames
+    if (numSpells > #TGUCT.spell_frames) then
+        numSpells = #TGUCT.spell_frames
     end
     for k=1, numSpells do
-        local v = EventHandler.tracked_spells[k]
-        local f = EventHandler.spell_frames[k]
+        local v = TGUCT.tracked_spells[k]
+        local f = TGUCT.spell_frames[k]
         
         -- Get the cast bar
         local percent = (currTime - v.timestamp)/v.castInfo.length
@@ -290,15 +289,15 @@ function EventHandler.OnUpdate()
     end
     
     -- Hide others
-    for k=numSpells+1, #EventHandler.spell_frames do
-        EventHandler.spell_frames[k].castTrackerBar:Hide()
+    for k=numSpells+1, #TGUCT.spell_frames do
+        TGUCT.spell_frames[k].castTrackerBar:Hide()
     end
     
     -- Finally set the height
-    TGUnitCastTracker:SetHeight(11 + numSpells*15)
+    TGUCTFrame:SetHeight(11 + numSpells*15)
 end
 
-TGEventManager.Register(EventHandler)
+TGEventManager.Register(TGUCT)
 
-SlashCmdList["TGUCTDUMP"] = EventHandler.DumpCastCache
+SlashCmdList["TGUCTDUMP"] = TGUCT.DumpCastCache
 SLASH_TGUCTDUMP1 = "/tguctdump"
