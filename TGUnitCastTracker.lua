@@ -3,10 +3,11 @@ TGUCT = {
     cast_cache     = {},
     tracked_spells = {},
     spell_frames   = {},
+    log            = TGLog:new(1),
 }
 
-local function TGCTDbg(msg)
-    --TGDbg(msg)
+local function dbg(...)
+    TGUCT.log:log(0, ...)
 end
 
 function TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
@@ -92,41 +93,26 @@ end
 
 function TGUCT.UNIT_SPELLCAST_SENT(unit, targetName, castGUID, spellID)
     local timestamp = GetTime()
-    --[[
-    TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SENT"
-            .." unit "..tostring(unit)
-            .." targetName "..tostring(targetName)
-            .." castGUID "..tostring(castGUID)
-            .." spellID "..tostring(spellID)
-            )
-    ]]
+    dbg("[", timestamp, "] TGUnitCastTracker: UNIT_SPELLCAST_SENT unit ", unit,
+        " targetName ", targetName, " castGUID ", castGUID, " spellID ",
+        spellID)
 
     TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
 function TGUCT.UNIT_SPELLCAST_START(unit, castGUID, spellID)
     local timestamp = GetTime()
-    --[[
-    TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_START"
-            .." unit "..tostring(unit)
-            .." castGUID "..tostring(castGUID)
-            .." spellID "..tostring(spellID)
-            )
-    ]]
+    dbg("[", timestamp, "] TGUnitCastTracker: UNIT_SPELLCAST_START unit ", unit,
+        " castGUID ", castGUID, " spellID ", spellID)
 
     TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
 end
 
 function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     local timestamp = GetTime()
-    --[[
-    TGDbg("["..timestamp.."] TGUnitCastTracker: UNIT_SPELLCAST_SUCCEEDED"
-            .." unit"..tostring(unit)
-            .." castGUID "..tostring(castGUID)
-            .." spellID "..tostring(spellID)
-            )
-    print(" ")
-    ]]
+    dbg("[", timestamp, "] TGUnitCastTracker: UNIT_SPELLCAST_SUCCEEDED unit",
+        unit, " castGUID ", castGUID, " spellID ", spellID)
+    dbg(" ")
 
     -- Find or allocate the cast and see if we care about it.
     local cast = TGUCT.GetOrAllocateCast(timestamp, castGUID, spellID)
@@ -160,46 +146,27 @@ function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
 end
 
 function TGUCT.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
-    --[[
-    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED"
-          .." unit: "..tostring(unit)
-          .." castGUID: "..tostring(castGUID)
-          .." spellID: "..tostring(spellID)
-          )
-    ]]
+    dbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED unit: ", unit, " castGUID: ",
+        castGUID, " spellID: ", spellID)
     TGUCT.FreeCastByGUID(castGUID)
 end
 
 function TGUCT.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
-    --[[
-    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED_QUIET"
-          .." unit: "..tostring(unit)
-          .." castGUID: "..tostring(castGUID)
-          .." spellID: "..tostring(spellID)
-          )
-    ]]
+    dbg("TGUnitCastTracker: UNIT_SPELLCAST_FAILED_QUIET unit: ", unit,
+        " castGUID: ", castGUID, " spellID: ", spellID)
     TGUCT.FreeCastByGUID(castGUID)
 end
 
 function TGUCT.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
-    --[[
-    TGDbg("TGUnitCastTracker: UNIT_SPELLCAST_INTERRUPTED"
-          .." unit: "..tostring(unit)
-          .." castGUID: "..tostring(castGUID)
-          .." spellID: "..tostring(spellID)
-          )
-    ]]
+    dbg("TGUnitCastTracker: UNIT_SPELLCAST_INTERRUPTED unit: ", unit,
+        " castGUID: ", castGUID, " spellID: ", spellID)
     TGUCT.FreeCastByGUID(castGUID)
 end
 
 function TGUCT.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
-                                     targetName)
-    --[[
-    TGCTDbg("["..timestamp.."] TGUnitCastTracker: CLEU_UNIT_DIED "
-            .." targetGUID: "..tostring(targetGUID)
-            .." targetName: "..tostring(targetName)
-            )
-    ]]
+                              targetName)
+    dbg("[", timestamp, "] TGUnitCastTracker: CLEU_UNIT_DIED targetGUID: ",
+        targetGUID, " targetName: ", targetName)
 
     local removedOne
     repeat
