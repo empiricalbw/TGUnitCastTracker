@@ -228,27 +228,24 @@
             </Frame>
         </Frames>
         <Scripts>
-            <OnMouseUp>
-                if ( self.isMoving ) then
-                    self:StopMovingOrSizing();
-                    self.isMoving = false;
-                end
-            </OnMouseUp>
             <OnMouseDown>
-                if ( ( ( not self.isLocked ) or ( self.isLocked == 0 ) ) and ( arg1 == "LeftButton" ) ) then
+                if button == "LeftButton" and not self.isMoving then
                     self:StartMoving();
                     self.isMoving = true;
                 end
             </OnMouseDown>
+            <OnMouseUp>
+                if button == "LeftButton" and self.isMoving then
+                    self:StopMovingOrSizing();
+                    self.isMoving = false;
+                end
+            </OnMouseUp>
             <OnHide>
-                if ( self.isMoving ) then
+                if self.isMoving then
                     self:StopMovingOrSizing();
                     self.isMoving = false;
                 end
             </OnHide>
-            <OnEvent>
-                TGUnitastTracker_OnEvent(event,arg1);
-            </OnEvent>
         </Scripts>
     </Frame>
 </Ui>

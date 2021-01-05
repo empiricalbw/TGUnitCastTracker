@@ -4,60 +4,51 @@ TGSpellDB = {}
 -- tracking.
 TGSpellDB.OVER_TIME_SPELL_LIST = {
     -- Priest spells.
-    {
-        name    = "Renew",
+    ["Renew"] = {
         texture = "Interface\\Icons\\Spell_Holy_Renew",
         tick    = 3,
         ranks   = {},   -- length = 15
     },
-    {
-        name    = "Shadow Word: Pain",
+    ["Shadow Word: Pain"] = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
         ranks   = {},   -- length = 18
     },
-    {
-        name    = "Vampiric Touch",
+    ["Vampiric Touch"] = {
         texture = "Interface\\Icons\\Spell_Holy_Stoicism",
         tick    = 3,
         ranks   = {},   -- length = 15
     },
-    {
-        name    = "Power Infusion",
+    ["Power Infusion"] = {
         texture = "Interface\\Icons\\Spell_Holy_PowerInfusion",
         tick    = nil,
         ranks   = {},   -- length = 15
     },
-    {
-        name    = "Abolish Disease",
+    ["Abolish Disease"] = {
         texture = "Interface\\Icons\\Spell_Nature_NullifyDisease",
         tick    = 5,
         ranks   = {},   -- length = 20
     },
 
     -- Druid spells.
-    {
-        name    = "Rejuvenation",
+    ["Rejuvenation"] = {
         texture = "Interface\\Icons\\Spell_Nature_Rejuvenation",
         tick    = 3,
         ranks   = {},   -- length = 12
     },
-    {
-        name    = "Regrowth",
+    ["Regrowth"] = {
         texture = "Interface\\Icons\\Spell_Nature_ResistNature",
         tick = 3,
         ranks   = {},   -- length = 21
     },
-    {
-        name    = "Lacerate",
+    ["Lacerate"] = {
         texture = "Interface\\Icons\\Ability_Druid_Lacerate",
         tick    = 3,
         ranks   = {},   -- length = 15
     },
 
     -- Warlock spells.
-    {
-        name    = "Immolate",
+    ["Immolate"] = {
         texture = "Interface\\Icons\\Spell_Fire_Immolation",
         tick    = 3,
         ranks   = {
@@ -71,8 +62,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [25309] = {length = 15},
         },
     },
-    {
-        name    = "Corruption",
+    ["Corruption"] = {
         texture = "Interface\\Icons\\Spell_Shadow_AbominationExplosion",
         tick    = 3,
         ranks   = {
@@ -85,8 +75,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [25311] = {length = 18},
         },
     },
-    {
-        name    = "Curse of Agony",
+    ["Curse of Agony"] = {
         texture = "Interface\\Icons\\Spell_Shadow_CurseOfSargeras",
         tick    = 2,
         ranks   = {
@@ -98,8 +87,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [11713] = {length = 24},
         },
     },
-    {
-        name    = "Siphon Life",
+    ["Siphon Life"] = {
         texture = "Interface\\Icons\\Spell_Shadow_Requiem",
         tick    = 3,
         ranks   = {
@@ -112,10 +100,10 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
 }
 
 TGSpellDB.OT_CAST_INFO = {}
-for _, s in ipairs(TGSpellDB.OVER_TIME_SPELL_LIST) do
+for spellName, s in pairs(TGSpellDB.OVER_TIME_SPELL_LIST) do
     for spellID, r in pairs(s.ranks) do
         TGSpellDB.OT_CAST_INFO[spellID] = {
-            name    = s.name,
+            name    = spellName,
             texture = s.texture,
             tick    = s.tick,
             length  = r.length,
