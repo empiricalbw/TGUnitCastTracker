@@ -159,7 +159,6 @@ function TGUCT.ProcessCastFIFO()
 
     -- If we aren't refreshing, insert the new one.
     if not refreshed then
-        --print("New cast detected!")
         table.insert(TGUCT.tracked_spells, meta_cast)
     end
 
@@ -241,7 +240,6 @@ function TGUCT.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
         removedOne = false
         for k, v in ipairs(TGUCT.tracked_spells) do
             if v.cleu_cast.targetGUID == targetGUID then
-                --print("Unit Died, freeing spell")
                 local meta_cast = table.remove(TGUCT.tracked_spells, k)
                 meta_cast.event_cast:free()
                 meta_cast.cleu_cast:free()
@@ -265,7 +263,6 @@ function TGUCT.OnUpdate()
             if (v.event_cast.timestamp + v.event_cast.castInfo.length <=
                 currTime)
             then
-                --print("Spell expired, freeing spell!")
                 local meta_cast = table.remove(TGUCT.tracked_spells, k)
                 meta_cast.event_cast:free()
                 meta_cast.cleu_cast:free()
@@ -307,12 +304,10 @@ function TGUCT.OnUpdate()
         f.castTrackerBarFrameText:SetText(cc.targetName)
         
         local realWidth = f.sizeFrame:GetWidth()
-        --TGUFMsg(""..(1-percent)*realWidth)
         local percentWidth = math.floor((1-percent)*realWidth + 0.5)
         if (percentWidth <= 0) then
             percentWidth = 1
         end
-        --print(percentWidth)
         f.castTrackerBarFrame:SetWidth(percentWidth);
         
         local elapsed = currTime - ec.timestamp;
