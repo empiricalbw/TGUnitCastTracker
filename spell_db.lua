@@ -47,6 +47,21 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         ranks   = {},   -- length = 15
     },
 
+    -- Warrior spells.
+    ['Rend'] = {
+        texture = 132155,
+        tick    = 3,
+        ranks   = {
+            [772]   = {length = 9},
+            [6546]  = {length = 12},
+            [6547]  = {length = 15},
+            [6548]  = {length = 18},
+            [11572] = {length = 21},
+            [11573] = {length = 21},
+            [11574] = {length = 21},
+        }
+    },
+
     -- Warlock spells.
     ["Immolate"] = {
         texture = "Interface\\Icons\\Spell_Fire_Immolation",
@@ -95,6 +110,14 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [18879] = {length = 30},
             [18880] = {length = 30},
             [18881] = {length = 30},
+        },
+    },
+    ['Banish'] = {
+        texture = "Interface\\Icons\\Spell_Shadow_Cripple",
+        tick    = nil,
+        ranks   = {
+            [710]   = {length = 30},
+            [18647] = {length = 30},
         },
     },
 }
