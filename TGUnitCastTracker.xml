@@ -72,8 +72,8 @@
             <AbsDimension x="200" y="24"/>
         </Size>
         <Anchors>
-            <Anchor point="TOPLEFT">
-                <Offset><AbsDimension x="963" y="-900"/></Offset>
+            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT">
+                <Offset><AbsDimension x="954" y="257"/></Offset>
             </Anchor>
         </Anchors>
         <Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
@@ -238,6 +238,7 @@
                 if button == "LeftButton" and self.isMoving then
                     self:StopMovingOrSizing();
                     self.isMoving = false;
+                    TGUCT.SetPosition(self:GetLeft(), self:GetTop());
                 end
             </OnMouseUp>
             <OnHide>
