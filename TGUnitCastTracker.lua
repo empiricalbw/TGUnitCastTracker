@@ -1,3 +1,83 @@
+-- Anatomy of a spellcast.  Here's Eye of Kilrogg, which starts with a cast and
+-- then switches to channeling:
+--
+--  Frame   Event                           Valid
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_START            castGUID, spellID
+--  1       UNIT_SPELLCAST_DELAYED          castGUID, spellID (on damage)
+--  2       UNIT_SPELLCAST_CHANNEL_START    spellID
+--  2       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  2       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  3       UNIT_SPELLCAST_CHANNEL_STOP     spellID
+--
+-- Here's Drain Soul, which is purely channeled:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_CHANNEL_START    spellID
+--  0       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  0       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  1       UNIT_SPELLCAST_CHANNEL_UPDATE   spellID (on damage)
+--  2       UNIT_SPELLCAST_CHANNEL_STOP     spellID
+--
+-- Here's Soul Fire, which is purely cast:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_START            castGUID, spellID
+--  1       UNIT_SPELLCAST_DELAYED          castGUID, spellID (on damage)
+--  2       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  2       UNIT_SPELLCAST_STOP             castGUID, spellID
+--  2       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--
+-- Here's Summon Imp, which is purely cast with no offensive component:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_START            castGUID, spellID
+--  1       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  1       UNIT_SPELLCAST_STOP             castGUID, spellID
+--  1       CLEU_SPELL_CAST_SUCCESS         sourceGUID, spellName
+--
+-- Here's Summon Imp, but interrupt by moving before it completes:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_START            castGUID, spellID
+--  1       UNIT_SPELLCAST_INTERRUPTED      castGUID, spellID
+--  1       UNIT_SPELLCAST_STOP             castGUID, spellID
+--  2       UNIT_SPELLCAST_INTERRUPTED      castGUID, spellID
+--  2       UNIT_SPELLCAST_INTERRUPTED      castGUID, spellID
+--  2       UNIT_SPELLCAST_INTERRUPTED      castGUID, spellID
+--
+-- Here's Create Healthstone (Greater), which doesn't even have a visible non-
+-- player component:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_START            castGUID, spellID
+--  1       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  1       UNIT_SPELLCAST_STOP             castGUID, spellID
+--  1       CLEU_SPELL_CAST_SUCCESS         sourceGUID, spellName
+--
+-- Here's Create Healthstone (Greater) when you already have one in your
+-- inventory:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_FAILED           castGUID, spellID (different!?)
+--  0       UNIT_SPELLCAST_FAILED_QUIET     castGUID, spellID
+--
+-- Here's what we get when a Defias Rogue Wizard hits me with a Frostbolt:
+--
+--  0       CLEU_SPELL_CAST_START           sourceGUID, spellName
+--  1       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  2       CLEU_SPELL_DAMAGE               sourceGUID, targetGUID, spellName
+--
+-- And when he misses:
+--
+--  0       CLEU_SPELL_CAST_START           sourceGUID, spellName
+--  1       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  2       CLEU_SPELL_MISSED               sourceGUID, targetGUID, spellName
+--
+-- So for mob spell notification, we should just watch for SPELL_CAST_START and
+-- SPELL_CAST_SUCCESS.  Note that if I fear the mob while it is casting, there
+-- is no CLEU notification that the mob's cast failed.
+
 -- A type to keep track of casts generated via UNIT_SPELLCAST events.
 TGEventCast = {}
 TGEventCast.__index = TGEventCast
@@ -66,13 +146,19 @@ TGUCT = {
     spell_frames   = {},
     log_level      = 1,
     log            = TGLog:new(1),
+    log_timestamp  = nil,
 
     event_casts    = {},
     cleu_casts     = {},
 }
 
 local function dbg(...)
-    TGUCT.log:log(TGUCT.log_level, ...)
+    local timestamp = GetTime()
+    if timestamp ~= TGUCT.log_timestamp then
+        TGUCT.log_timestamp = timestamp
+        TGUCT.log:log(TGUCT.log_level, " ")
+    end
+    TGUCT.log:log(TGUCT.log_level, "[", timestamp, "] ", ...)
 end
 
 function TGUCT.ADDON_LOADED(addOnName)
@@ -181,18 +267,43 @@ function TGUCT.DumpCastFIFO()
     end
 end
 
+function TGUCT.UNIT_SPELLCAST_SENT(unit, target, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_SENT unit: ", unit, " target: ", target, " castGUID: ",
+        castGUID, " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_START(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_START unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_DELAYED(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_DELAYED unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
 function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     if unit ~= "player" then
         return
     end
 
-    local timestamp = GetTime()
-    dbg("[", timestamp, "] TGUnitCastTracker: UNIT_SPELLCAST_SUCCEEDED unit",
-        unit, " castGUID ", castGUID, " spellID ", spellID)
-    dbg(" ")
+    dbg("UNIT_SPELLCAST_SUCCEEDED unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
 
     -- Push the spellcast if we care about it.
-    local event_cast = TGEventCast:new(timestamp, castGUID, spellID)
+    local event_cast = TGEventCast:new(GetTime(), castGUID, spellID)
     if event_cast.castInfo then
         TGUCT.PushEventCast(event_cast)
     else
@@ -200,44 +311,129 @@ function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
     end
 end
 
-function TGUCT.CLEU_SPELL_CAST_SUCCESS(timestamp, _, sourceGUID, _, _, _,
+function TGUCT.UNIT_SPELLCAST_FAILED(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_FAILED unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_FAILED_QUIET(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_FAILED_QUIET unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_INTERRUPTED(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_INTERRUPTED unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_STOP(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_STOP unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_CHANNEL_START(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_CHANNEL_START unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_CHANNEL_UPDATE(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_CHANNEL_UPDATE unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.UNIT_SPELLCAST_CHANNEL_STOP(unit, castGUID, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    dbg("UNIT_SPELLCAST_CHANNEL_STOP unit: ", unit, " castGUID: ", castGUID,
+        " spellID: ", spellID)
+end
+
+function TGUCT.CLEU_SPELL_CAST_START(cleu_timestamp, _, sourceGUID, _, _, _,
+                                     targetGUID, targetName, _, _, _,
+                                     spellName, _)
+    dbg("CLEU_SPELL_CAST_START sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName)
+end
+
+function TGUCT.CLEU_SPELL_CAST_SUCCESS(cleu_timestamp, _, sourceGUID, _, _, _,
                                        targetGUID, targetName, _, _, _,
                                        spellName, _)
-    dbg("[", timestamp, "] TGUnitCastTracker: CLEU_SPELL_CAST_SUCCESS ",
-        "sourceGUID: ", sourceGUID, "targetGUID: ", targetGUID,
-        " targetName: ", targetName, " spellName: ", spellName)
+    dbg("CLEU_SPELL_CAST_SUCCESS sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName)
     if sourceGUID ~= UnitGUID("player") then
         return
     end
 
     if TGSpellDB.OVER_TIME_SPELL_LIST[spellName] then
-        local cleu_cast = TGCLEUCast:new(timestamp, "SPELL_CAST_SUCCESS",
+        local cleu_cast = TGCLEUCast:new(cleu_timestamp, "SPELL_CAST_SUCCESS",
                                          targetGUID, targetName, spellName)
         TGUCT.PushCLEUCast(cleu_cast)
     end
 end
 
-function TGUCT.CLEU_SPELL_MISSED(timestamp, _, sourceGUID, _, _, _,
+function TGUCT.CLEU_SPELL_CAST_FAILED(cleu_timestamp, _, sourceGUID, _, _, _,
+                                      targetGUID, targetName, _, _, _,
+                                      spellName, _, failedType)
+    dbg("CLEU_SPELL_CAST_FAILED sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName,
+        " failedType: ", failedType)
+end
+
+function TGUCT.CLEU_SPELL_DAMAGE(cleu_timestamp, _, sourceGUID, _, _, _,
                                  targetGUID, targetName, _, _, _,
-                                 spellName, _)
-    dbg("[", timestamp, "] TGUnitCastTracker: CLEU_SPELL_MISSED ",
-        "sourceGUID: ", sourceGUID, "targetGUID: ", targetGUID,
-        " targetName: ", targetName, " spellName: ", spellName)
+                                 spellName)
+    dbg("CLEU_SPELL_CAST_DAMAGE sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName)
+end
+
+function TGUCT.CLEU_SPELL_MISSED(cleu_timestamp, _, sourceGUID, _, _, _,
+                                 targetGUID, targetName, _, _, _,
+                                 spellName, _, missType, isOffHand,
+                                 amountMissed, critical)
+    dbg("CLEU_SPELL_MISSED sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName,
+        " missType: ", missType, " isOffHand: ", isOffHand, " amountMissed: ",
+        amountMissed, " critical: ", critical)
     if sourceGUID ~= UnitGUID("player") then
         return
     end
 
     if TGSpellDB.OVER_TIME_SPELL_LIST[spellName] then
-        local cleu_cast = TGCLEUCast:new(timestamp, "SPELL_MISSED",
+        local cleu_cast = TGCLEUCast:new(cleu_timestamp, "SPELL_MISSED",
                                          targetGUID, targetName, spellName)
         TGUCT.PushCLEUCast(cleu_cast)
     end
 end
 
-function TGUCT.CLEU_UNIT_DIED(timestamp, _, _, _, _, _, targetGUID,
+function TGUCT.CLEU_UNIT_DIED(cleu_timestamp, _, _, _, _, _, targetGUID,
                               targetName)
-    dbg("[", timestamp, "] TGUnitCastTracker: CLEU_UNIT_DIED targetGUID: ",
-        targetGUID, " targetName: ", targetName)
+    dbg("CLEU_UNIT_DIED targetGUID: ", targetGUID, " targetName: ", targetName)
 
     local removedOne
     repeat

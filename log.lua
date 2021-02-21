@@ -11,6 +11,7 @@ end
 function TGLog:TGLog(level)
     self.lines = {}
     self.level = level
+    self.echo  = false
 end
 
 function TGLog:clear()
@@ -28,6 +29,10 @@ function TGLog:log(level, ...)
         msg = msg..tostring(args[i])
     end
     table.insert(self.lines, msg)
+
+    if self.echo then
+        print(msg)
+    end
 end
 
 function TGLog:dump()
