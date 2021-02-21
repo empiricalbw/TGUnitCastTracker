@@ -14,7 +14,16 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
     ["Shadow Word: Pain"] = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
-        ranks   = {},   -- length = 18
+        ranks   = {
+            [589]   = {length = 18},
+            [594]   = {length = 18},
+            [970]   = {length = 18},
+            [992]   = {length = 18},
+            [2767]  = {length = 18},
+            [10892] = {length = 18},
+            [10893] = {length = 18},
+            [10894] = {length = 18},
+        },
     },
     ["Vampiric Touch"] = {
         texture = "Interface\\Icons\\Spell_Holy_Stoicism",
