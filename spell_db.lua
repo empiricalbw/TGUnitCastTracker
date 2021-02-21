@@ -4,11 +4,13 @@ TGSpellDB = {}
 -- tracking.
 TGSpellDB.OVER_TIME_SPELL_LIST = {
     -- Priest spells.
+    --[[
     ["Renew"] = {
         texture = "Interface\\Icons\\Spell_Holy_Renew",
         tick    = 3,
         ranks   = {},   -- length = 15
     },
+    ]]
     ["Shadow Word: Pain"] = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
@@ -19,6 +21,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         tick    = 3,
         ranks   = {},   -- length = 15
     },
+    --[[
     ["Power Infusion"] = {
         texture = "Interface\\Icons\\Spell_Holy_PowerInfusion",
         tick    = nil,
@@ -29,6 +32,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         tick    = 5,
         ranks   = {},   -- length = 20
     },
+    ]]
 
     -- Druid spells.
     ["Rejuvenation"] = {
