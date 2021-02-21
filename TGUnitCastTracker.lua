@@ -130,6 +130,10 @@ function TGUCT.ProcessCastFIFO()
 
     local event_cast = table.remove(TGUCT.event_casts, 1)
     local cleu_cast  = table.remove(TGUCT.cleu_casts, 1)
+    if (event_cast.spellName ~= cleu_cast.spellName) then
+        print(event_cast.spellName)
+        print(cleu_cast.spellName)
+    end
     assert(event_cast.spellName == cleu_cast.spellName)
 
     if cleu_cast.event ~= "SPELL_CAST_SUCCESS" then
