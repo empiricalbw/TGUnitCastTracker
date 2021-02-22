@@ -96,12 +96,13 @@
 -- SPELL_CAST_SUCCESS.  Note that if I fear the mob while it is casting, there
 -- is no CLEU notification that the mob's cast failed.
 
-TGUCTSavedVariables = {
+local TGUCTSavedVariablesDefault = {
     position = {
         x = 954,    -- Distance from left edge of screen to left of frame
         y = 257,    -- Distance from bottom edge screen to top of frame
-    }
+    },
 }
+TGUCTSavedVariables = {}
 
 -- A type to keep track of casts generated via UNIT_SPELLCAST events.
 TGEventCast = {}
@@ -191,6 +192,11 @@ function TGUCT.ADDON_LOADED(addOnName)
         return
     end
 
+    for k, v in pairs(TGUCTSavedVariablesDefault) do
+        if TGUCTSavedVariables[k] == nil then
+            TGUCTSavedVariables[k] = TGUCTSavedVariablesDefault[k]
+        end
+    end
     TGUCT.SetPosition(TGUCTSavedVariables.position.x,
                       TGUCTSavedVariables.position.y)
 
