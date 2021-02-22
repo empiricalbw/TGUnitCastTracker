@@ -526,9 +526,9 @@ function TGUCT.OnUpdate()
         if (percentWidth <= 0) then
             percentWidth = 1
         end
-        f.castTrackerBarFrame:SetWidth(percentWidth);
+        f.castTrackerBarFrame:SetWidth(percentWidth)
         
-        local elapsed = currTime - ec.timestamp;
+        local elapsed = currTime - ec.timestamp
         if (elapsed > 0.125 and ec.castInfo.tick ~= nil) then
             local modulo = (elapsed % ec.castInfo.tick)
             if (modulo > ec.castInfo.tick/2) then
