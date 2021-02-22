@@ -5,6 +5,7 @@
 --  0       UNIT_SPELLCAST_SENT             castGUID, spellID
 --  0       UNIT_SPELLCAST_START            castGUID, spellID
 --  1       UNIT_SPELLCAST_DELAYED          castGUID, spellID (on damage)
+--          (Note: no UNIT_SPELLCAST_STOP)
 --  2       UNIT_SPELLCAST_CHANNEL_START    spellID
 --  2       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
 --  2       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
@@ -68,6 +69,16 @@
 --  0       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
 --  0       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
 --  0       CLEU_SPELL_AURA_APPLIED         sourceGUID, targetGUID, spellName
+--
+-- Here's Drain Soul, which is a channeled spell with a DoT component:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_CHANNEL_START    spellID
+--  0       CLEU_SPELL_AURA_APPLIED         (self Drain Soul BUFF)
+--  0       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  0       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  1       CLEU_SPELL_AURA_APPLIED         sourceGUID, targetGUID, spellName
+--  2       UNIT_SPELLCAST_CHANNEL_STOP     spellID
 --
 -- Here's what we get when a Defias Rogue Wizard hits me with a Frostbolt:
 --
