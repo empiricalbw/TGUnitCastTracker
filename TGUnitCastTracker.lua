@@ -198,6 +198,29 @@ function TGUCT.ADDON_LOADED(addOnName)
     end
 end
 
+function TGUCT.OnMouseDown(button)
+    if button == "LeftButton" and not TGUCTFrame.isMoving then
+        TGUCTFrame:StartMoving()
+        TGUCTFrame.isMoving = true
+    end
+end
+
+function TGUCT.OnMouseUp(button)
+    if button == "LeftButton" and TGUCTFrame.isMoving then
+        TGUCTFrame:StopMovingOrSizing()
+        TGUCTFrame.isMoving = false
+        TGUCT.SetPosition(TGUCTFrame:GetLeft(), TGUCTFrame:GetTop())
+    end
+end
+
+function TGUCT.OnHide()
+    if TGUCTFrame.isMoving then
+        TGUCTFrame:StopMovingOrSizing()
+        TGUCTFrame.isMoving = false
+        TGUCT.SetPosition(TGUCTFrame:GetLeft(), TGUCTFrame:GetTop())
+    end
+end
+
 function TGUCT.SetPosition(x, y)
     TGUCTFrame:ClearAllPoints()
     TGUCTFrame:SetUserPlaced(false)

@@ -229,23 +229,13 @@
         </Frames>
         <Scripts>
             <OnMouseDown>
-                if button == "LeftButton" and not self.isMoving then
-                    self:StartMoving();
-                    self.isMoving = true;
-                end
+                TGUCT.OnMouseDown(button)
             </OnMouseDown>
             <OnMouseUp>
-                if button == "LeftButton" and self.isMoving then
-                    self:StopMovingOrSizing();
-                    self.isMoving = false;
-                    TGUCT.SetPosition(self:GetLeft(), self:GetTop());
-                end
+                TGUCT.OnMouseUp(button)
             </OnMouseUp>
             <OnHide>
-                if self.isMoving then
-                    self:StopMovingOrSizing();
-                    self.isMoving = false;
-                end
+                TGUCT.OnHide()
             </OnHide>
         </Scripts>
     </Frame>
