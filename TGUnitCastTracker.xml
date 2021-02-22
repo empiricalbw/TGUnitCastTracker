@@ -66,7 +66,6 @@
         </Layers>
     </Frame>
     
-    <!-- This frame is a generic unit element -->
     <Frame name="TGUCTFrame" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent">
         <Size>
             <AbsDimension x="200" y="24"/>
