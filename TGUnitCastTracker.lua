@@ -62,6 +62,13 @@
 --  0       UNIT_SPELLCAST_FAILED           castGUID, spellID (different!?)
 --  0       UNIT_SPELLCAST_FAILED_QUIET     castGUID, spellID
 --
+-- Here's Siphon Life, which is an instant cast with a DoT component:
+--
+--  0       UNIT_SPELLCAST_SENT             castGUID, spellID
+--  0       UNIT_SPELLCAST_SUCCEEDED        castGUID, spellID
+--  0       CLEU_SPELL_CAST_SUCCESS         sourceGUID, targetGUID, spellName
+--  0       CLEU_SPELL_AURA_APPLIED         sourceGUID, targetGUID, spellName
+--
 -- Here's what we get when a Defias Rogue Wizard hits me with a Frostbolt:
 --
 --  0       CLEU_SPELL_CAST_START           sourceGUID, spellName
@@ -470,6 +477,14 @@ function TGUCT.CLEU_SPELL_MISSED(cleu_timestamp, _, sourceGUID, _, _, _,
                                          targetGUID, targetName, spellName)
         TGUCT.PushCLEUCast(cleu_cast)
     end
+end
+
+function TGUCT.CLEU_SPELL_AURA_APPLIED(cleu_timestamp, _, sourceGUID, _, _, _,
+                                       targetGUID, targetName, _, _, _,
+                                       spellName, _, auraType, amount)
+    dbg("CLEU_SPELL_AURA_APPLIED sourceGUID: ", sourceGUID, " targetGUID: ",
+        targetGUID, " targetName: ", targetName, " spellName: ", spellName,
+        " auraType: ", auraType, " amount: ", amount)
 end
 
 function TGUCT.CLEU_UNIT_DIED(cleu_timestamp, _, _, _, _, _, targetGUID,
