@@ -101,6 +101,18 @@ local TGUCTSavedVariablesDefault = {
         x = 954,    -- Distance from left edge of screen to left of frame
         y = 257,    -- Distance from bottom edge screen to top of frame
     },
+    castingColor = {
+        r = 1,
+        g = 1,
+        b = 0.25,
+        a = 1,
+    },
+    channelingColor = {
+        r = 0.25,
+        g = 1,
+        b = 0.25,
+        a = 1,
+    },
 }
 TGUCTSavedVariables = {}
 
@@ -169,6 +181,7 @@ end
 -- Our cast tracker addon.
 TGUCT = {
     tracked_spells = {},
+    cast_frame     = nil,
     spell_frames   = {},
     log_level      = 1,
     log            = TGLog:new(1),
@@ -176,6 +189,28 @@ TGUCT = {
 
     event_casts    = {},
     cleu_casts     = {},
+
+    cast_info = {
+        name      = nil,
+        text      = nil,
+        texture   = nil,
+        startTime = nil,
+        endTime   = nil,
+        castGUID  = nil,
+        spellId   = nil,
+        shrink    = false,
+        color     = nil,
+    },
+    channel_info = {
+        name      = nil,
+        text      = nil,
+        texture   = nil,
+        startTime = nil,
+        endTime   = nil,
+        spellId   = nil,
+        shrink    = true,
+        color     = nil,
+    },
 }
 
 local function dbg(...)
@@ -197,8 +232,24 @@ function TGUCT.ADDON_LOADED(addOnName)
             TGUCTSavedVariables[k] = TGUCTSavedVariablesDefault[k]
         end
     end
+    TGUCT.cast_info.color    = TGUCTSavedVariables.castingColor
+    TGUCT.channel_info.color = TGUCTSavedVariables.channelingColor
+
     TGUCT.SetPosition(TGUCTSavedVariables.position.x,
                       TGUCTSavedVariables.position.y)
+
+    TGUCT.cast_frame = {
+        icon       = TGUCTFrameCastBarIconTexture,
+        bar        = TGUCTFrameCastBarBar,
+        text       = TGUCTFrameCastBarSizeFrameText,
+        barTexture = TGUCTFrameCastBarBarTexture,
+        barSpark   = TGUCTFrameCastBarBarSpark,
+        sizeFrame  = TGUCTFrameCastBarSizeFrame,
+    }
+    TGUCT.cast_frame.bar:Hide()
+    TGUCT.cast_frame.text:Show()
+    TGUCT.cast_frame.text:SetJustifyH("CENTER")
+    TGUCT.cast_frame.text:SetText("--")
 
     local k = 1
     while true do
@@ -317,7 +368,7 @@ function TGUCT.ProcessCastFIFO()
         table.insert(TGUCT.tracked_spells, meta_cast)
     end
 
-    TGUCTFrame:Show()
+    --TGUCTFrame:Show()
 end
 
 function TGUCT.DumpCastFIFO()
@@ -348,6 +399,18 @@ function TGUCT.UNIT_SPELLCAST_START(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_START unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.channel_info.name = nil
+
+    TGUCT.cast_info.name,
+    TGUCT.cast_info.text,
+    TGUCT.cast_info.texture,
+    TGUCT.cast_info.startTime,
+    TGUCT.cast_info.endTime,
+    _,
+    TGUCT.cast_info.castGUID,
+    _,
+    TGUCT.cast_info.spellId = CastingInfo()
 end
 
 function TGUCT.UNIT_SPELLCAST_DELAYED(unit, castGUID, spellID)
@@ -357,6 +420,16 @@ function TGUCT.UNIT_SPELLCAST_DELAYED(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_DELAYED unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.cast_info.name,
+    TGUCT.cast_info.text,
+    TGUCT.cast_info.texture,
+    TGUCT.cast_info.startTime,
+    TGUCT.cast_info.endTime,
+    _,
+    TGUCT.cast_info.castGUID,
+    _,
+    TGUCT.cast_info.spellId = CastingInfo()
 end
 
 function TGUCT.UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
@@ -410,6 +483,8 @@ function TGUCT.UNIT_SPELLCAST_STOP(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_STOP unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.cast_info.name = nil
 end
 
 function TGUCT.UNIT_SPELLCAST_CHANNEL_START(unit, castGUID, spellID)
@@ -419,6 +494,17 @@ function TGUCT.UNIT_SPELLCAST_CHANNEL_START(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_CHANNEL_START unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.cast_info.name = nil
+
+    TGUCT.channel_info.name,
+    TGUCT.channel_info.text,
+    TGUCT.channel_info.texture,
+    TGUCT.channel_info.startTime,
+    TGUCT.channel_info.endTime,
+    _,
+    _,
+    TGUCT.channel_info.spellId = ChannelInfo()
 end
 
 function TGUCT.UNIT_SPELLCAST_CHANNEL_UPDATE(unit, castGUID, spellID)
@@ -428,6 +514,15 @@ function TGUCT.UNIT_SPELLCAST_CHANNEL_UPDATE(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_CHANNEL_UPDATE unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.channel_info.name,
+    TGUCT.channel_info.text,
+    TGUCT.channel_info.texture,
+    TGUCT.channel_info.startTime,
+    TGUCT.channel_info.endTime,
+    _,
+    _,
+    TGUCT.channel_info.spellId = ChannelInfo()
 end
 
 function TGUCT.UNIT_SPELLCAST_CHANNEL_STOP(unit, castGUID, spellID)
@@ -437,6 +532,8 @@ function TGUCT.UNIT_SPELLCAST_CHANNEL_STOP(unit, castGUID, spellID)
 
     dbg("UNIT_SPELLCAST_CHANNEL_STOP unit: ", unit, " castGUID: ", castGUID,
         " spellID: ", spellID)
+
+    TGUCT.channel_info.name = nil
 end
 
 function TGUCT.CLEU_SPELL_CAST_START(cleu_timestamp, _, sourceGUID, _, _, _,
@@ -527,9 +624,54 @@ function TGUCT.OnUpdate()
     -- Process the cast FIFO.
     TGUCT.ProcessCastFIFO()
 
+    -- Update cast bar text.
+    local currTime  = GetTime()
+    local cast_info = nil
+    if TGUCT.cast_info.name ~= nil then
+        cast_info = TGUCT.cast_info
+    elseif TGUCT.channel_info.name ~= nil then
+        cast_info = TGUCT.channel_info
+    end
+    if cast_info ~= nil then
+        TGUCT.cast_frame.text:SetText(cast_info.name)
+        TGUCT.cast_frame.icon:SetTexture(cast_info.texture)
+        TGUCT.cast_frame.icon:Show(cast_info.texture)
+        TGUCT.cast_frame.barTexture:SetVertexColor(cast_info.color.r,
+                                                   cast_info.color.g,
+                                                   cast_info.color.b)
+
+        local length  = cast_info.endTime - cast_info.startTime
+        local percent = (currTime*1000 - cast_info.startTime)/length
+        if percent < 0 then
+            percent = 0
+        end
+        if percent <= 1 then
+            local realWidth = TGUCT.cast_frame.sizeFrame:GetWidth()
+            local percentWidth
+            if cast_info.shrink then
+                percentWidth = math.floor((1-percent)*realWidth + 0.5)
+            else
+                percentWidth = math.floor(percent*realWidth + 0.5)
+            end
+            if (percentWidth <= 0) then
+                percentWidth = 1
+            end
+            TGUCT.cast_frame.bar:SetWidth(percentWidth)
+            TGUCT.cast_frame.bar:Show()
+        else
+            TGUCT.cast_frame.text:SetText("--")
+            TGUCT.cast_frame.icon:Hide()
+            TGUCT.cast_frame.bar:Hide()
+            cast_info.name = nil
+        end
+    else
+        TGUCT.cast_frame.text:SetText("--")
+        TGUCT.cast_frame.icon:Hide()
+        TGUCT.cast_frame.bar:Hide()
+    end
+
     -- Start by removing any old spells from the casting list
     local removedOne
-    local currTime = GetTime()
     repeat
         removedOne = false
         for k, v in ipairs(TGUCT.tracked_spells) do
@@ -547,10 +689,11 @@ function TGUCT.OnUpdate()
     
     -- If we have no more spells, we are done
     local numSpells = #TGUCT.tracked_spells
-    if (numSpells == 0) then
+    if (cast_info == nil and numSpells == 0) then
         TGUCTFrame:Hide()
         return
     end
+    TGUCTFrame:Show()
 
     -- Okay, we need to display spells, limited to the number of available
     -- frames.
@@ -606,7 +749,7 @@ function TGUCT.OnUpdate()
     end
     
     -- Finally set the height
-    TGUCTFrame:SetHeight(11 + numSpells*15)
+    TGUCTFrame:SetHeight(11 + numSpells*15 + 15)
 end
 
 function TGUCT.ExtendETrace()
