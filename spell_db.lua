@@ -74,6 +74,17 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [11574] = {length = 21},
         }
     },
+    ["Sunder Armor"] = {
+        texture = 132363,
+        tick    = nil,
+        ranks   = {
+            [7386]  = {length = 30},
+            [7405]  = {length = 30},
+            [8380]  = {length = 30},
+            [11596] = {length = 30},
+            [11597] = {length = 30},
+        }
+    },
 
     -- Warlock spells.
     ["Immolate"] = {
