@@ -61,7 +61,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
     },
 
     -- Warrior spells.
-    ['Rend'] = {
+    ["Rend"] = {
         texture = 132155,
         tick    = 3,
         ranks   = {
