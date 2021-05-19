@@ -68,7 +68,7 @@
         -->
     </Frame>
     
-    <Frame name="TGUCTFrame" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent">
+    <Frame name="TGUCTFrame" frameStrata="BACKGROUND" toplevel="true" hidden="true" movable="true" enableMouse="true" parent="UIParent" inherits="BackdropTemplate">
         <Size>
             <AbsDimension x="200" y="24"/>
         </Size>
@@ -77,15 +77,9 @@
                 <Offset><AbsDimension x="954" y="257"/></Offset>
             </Anchor>
         </Anchors>
-        <Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border">
-            <Color r="1" g="1" b="1" a="0"/>
-            <EdgeSize>
-                <AbsValue val="20"/>
-            </EdgeSize>
-            <BackgroundInsets>
-                <AbsInset left="5" right="5" top="5" bottom="5"/>
-            </BackgroundInsets>
-        </Backdrop>
+        <KeyValues>
+            <KeyValue key="backdropInfo" value="TGUCT_BACKDROP_TOOLTIP_20_20_5555" type="global"/>
+        </KeyValues>
         <Frames>
             <Frame name="$parentBackground">
                 <Anchors>

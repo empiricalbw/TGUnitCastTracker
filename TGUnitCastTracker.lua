@@ -116,6 +116,17 @@ local TGUCTSavedVariablesDefault = {
 }
 TGUCTSavedVariables = {}
 
+-- Border struct for the new Backdrop classes.
+TGUCT_BACKDROP_TOOLTIP_20_20_5555 = {
+    bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile     = true,
+    tileEdge = true,
+    tileSize = 20,
+    edgeSize = 20,
+    insets   = {left = 5, right = 5, top = 5, bottom = 5},
+}
+
 -- A type to keep track of casts generated via UNIT_SPELLCAST events.
 TGEventCast = {}
 TGEventCast.__index = TGEventCast
