@@ -5,10 +5,9 @@
 ## DefaultState: enabled
 ## Notes: Cast tracker
 ## URL: 
-## Dependencies: TGEventManager
+## Dependencies: TGEventManager TGLog
 ## SavedVariables: TGUCTSavedVariables
 
-log.lua
 spell_db.lua
 TGUnitCastTracker.lua
 TGUnitCastTracker.xml
