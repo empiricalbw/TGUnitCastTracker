@@ -189,13 +189,19 @@ function TGCLEUCast:free()
     table.insert(TGCLEUCast.free_casts, self)
 end
 
+function TGCLEUCast:dump()
+    assert(self.allocated == true)
+    print("["..self.timestamp.."] "..self.event..": ".." "..self.spellName..
+          " cast on "..self.targetName.." "..self.targetGUID)
+end
+
 -- Our cast tracker addon.
 TGUCT = {
     tracked_spells = {},
     cast_frame     = nil,
     spell_frames   = {},
     log_level      = 1,
-    log            = TGLog:new(1),
+    log            = TGLog:new(1, 2),
     log_timestamp  = nil,
 
     event_casts    = {},
@@ -282,6 +288,8 @@ function TGUCT.ADDON_LOADED(addOnName)
 
         k = k + 1
     end
+
+    CastingBarFrame:UnregisterAllEvents()
 end
 
 function TGUCT.OnMouseDown(button)
@@ -323,14 +331,17 @@ end
 function TGUCT.PushCLEUCast(cast)
     dbg("Pushing CLEU cast: "..cast.spellName)
     if cast.event ~= "SPELL_CAST_SUCCESS" then
-        assert(#TGUCT.cleu_casts > 0)
-        local last_cast = TGUCT.cleu_casts[#TGUCT.cleu_casts]
-        assert(last_cast.timestamp  == cast.timestamp)
-        assert(last_cast.targetGUID == cast.targetGUID)
-        assert(last_cast.spellName  == cast.spellName)
-        print("PushCLEUCast: Replacing "..last_cast.spellName.." "..
-              last_cast.event.." with "..cast.event)
-        last_cast.event = cast.event
+        if #TGUCT.cleu_casts == 0 then
+            cast:dump()
+        else
+            local last_cast = TGUCT.cleu_casts[#TGUCT.cleu_casts]
+            assert(last_cast.timestamp  == cast.timestamp)
+            assert(last_cast.targetGUID == cast.targetGUID)
+            assert(last_cast.spellName  == cast.spellName)
+            print("PushCLEUCast: Replacing "..last_cast.spellName.." "..
+                  last_cast.event.." with "..cast.event)
+            last_cast.event = cast.event
+        end
     else
         table.insert(TGUCT.cleu_casts, cast)
     end
