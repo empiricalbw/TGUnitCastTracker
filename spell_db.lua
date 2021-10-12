@@ -1,5 +1,11 @@
 TGSpellDB = {}
 
+local improvedSWPRank = 0
+local _, class = UnitClass("player")
+if class == "PRIEST" then
+    _, _, _, _, improvedSWPRank = GetTalentInfo(3,4)
+end
+
 -- The list of heal or damage over time spells that we are interested in
 -- tracking.
 TGSpellDB.OVER_TIME_SPELL_LIST = {
@@ -15,20 +21,24 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
         ranks   = {
-            [589]   = {length = 18},
-            [594]   = {length = 18},
-            [970]   = {length = 18},
-            [992]   = {length = 18},
-            [2767]  = {length = 18},
-            [10892] = {length = 18},
-            [10893] = {length = 18},
-            [10894] = {length = 18},
+            [589]   = {length = 18 + 3*improvedSWPRank},
+            [594]   = {length = 18 + 3*improvedSWPRank},
+            [970]   = {length = 18 + 3*improvedSWPRank},
+            [992]   = {length = 18 + 3*improvedSWPRank},
+            [2767]  = {length = 18 + 3*improvedSWPRank},
+            [10892] = {length = 18 + 3*improvedSWPRank},
+            [10893] = {length = 18 + 3*improvedSWPRank},
+            [10894] = {length = 18 + 3*improvedSWPRank},
         },
     },
     ["Vampiric Touch"] = {
         texture = "Interface\\Icons\\Spell_Holy_Stoicism",
         tick    = 3,
-        ranks   = {},   -- length = 15
+        ranks   = {
+            [34914] = {length = 15},
+            [34916] = {length = 15},
+            [34917] = {length = 15},
+        },
     },
     --[[
     ["Power Infusion"] = {
@@ -99,6 +109,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [11667] = {length = 15},
             [11668] = {length = 15},
             [25309] = {length = 15},
+            [27215] = {length = 15},
         },
     },
     ["Corruption"] = {
@@ -112,6 +123,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [11671] = {length = 18},
             [11672] = {length = 18},
             [25311] = {length = 18},
+            [27216] = {length = 18},
         },
     },
     ["Curse of Agony"] = {
@@ -124,6 +136,7 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [11711] = {length = 24},
             [11712] = {length = 24},
             [11713] = {length = 24},
+            [27218] = {length = 24},
         },
     },
     ["Siphon Life"] = {
