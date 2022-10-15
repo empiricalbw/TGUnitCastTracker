@@ -1,11 +1,5 @@
 TGSpellDB = {}
 
-local improvedSWPRank = 0
-local _, class = UnitClass("player")
-if class == "PRIEST" then
-    _, _, _, _, improvedSWPRank = GetTalentInfo(3,4)
-end
-
 -- The list of heal or damage over time spells that we are interested in
 -- tracking.
 TGSpellDB.OVER_TIME_SPELL_LIST = {
@@ -21,14 +15,15 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
         ranks   = {
-            [589]   = {length = 18 + 3*improvedSWPRank},
-            [594]   = {length = 18 + 3*improvedSWPRank},
-            [970]   = {length = 18 + 3*improvedSWPRank},
-            [992]   = {length = 18 + 3*improvedSWPRank},
-            [2767]  = {length = 18 + 3*improvedSWPRank},
-            [10892] = {length = 18 + 3*improvedSWPRank},
-            [10893] = {length = 18 + 3*improvedSWPRank},
-            [10894] = {length = 18 + 3*improvedSWPRank},
+            [589]   = {length = 18},
+            [594]   = {length = 18},
+            [970]   = {length = 18},
+            [992]   = {length = 18},
+            [2767]  = {length = 18},
+            [10892] = {length = 18},
+            [10893] = {length = 18},
+            [10894] = {length = 18},
+            [25367] = {length = 18},    -- WotLK
         },
     },
     ["Vampiric Touch"] = {

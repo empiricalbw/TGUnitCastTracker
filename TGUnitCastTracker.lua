@@ -352,6 +352,11 @@ function TGUCT.ProcessCastFIFO()
         return
     end
 
+    if TGUCT.event_casts[1].spellName ~= TGUCT.cleu_casts[1].spellName then
+        print("Spell name mismatch.")
+        TGUCT.DumpCastFIFO()
+    end
+
     local event_cast = table.remove(TGUCT.event_casts, 1)
     local cleu_cast  = table.remove(TGUCT.cleu_casts, 1)
     if (event_cast.spellName ~= cleu_cast.spellName) then
@@ -396,12 +401,12 @@ end
 function TGUCT.DumpCastFIFO()
     print("*** Event casts ***")
     for _, v in ipairs(TGUCT.event_casts) do
-        print("   "..v.spellName)
+        print("   "..tostring(v.timestamp)..": "..v.spellName)
     end
 
     print("*** CLEU casts ***")
     for _, v in ipairs(TGUCT.cleu_casts) do
-        print("   "..v.spellName)
+        print("   "..tostring(v.timestamp)..": "..v.spellName)
     end
 end
 
