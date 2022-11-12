@@ -24,6 +24,9 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [10893] = {length = 18},
             [10894] = {length = 18},
             [25367] = {length = 18},    -- WotLK
+            [25368] = {length = 18},    -- WotLK
+            [48124] = {length = 18},    -- WotLK
+            [48125] = {length = 18},    -- WotLK
         },
     },
     ["Vampiric Touch"] = {
@@ -33,6 +36,8 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
             [34914] = {length = 15},
             [34916] = {length = 15},
             [34917] = {length = 15},
+            [48159] = {length = 15},    -- WotLK
+            [48160] = {length = 15},    -- WotLK
         },
     },
     --[[
@@ -47,6 +52,21 @@ TGSpellDB.OVER_TIME_SPELL_LIST = {
         ranks   = {},   -- length = 20
     },
     ]]
+    ["Devouring Plague"] = {
+        texture = "Interface\\Icons\\Spell_Shadow_DevouringPlague",
+        tick    = 3,
+        ranks   = {
+            [2944]  = {length = 24},
+            [19276] = {length = 24},
+            [19277] = {length = 24},
+            [19278] = {length = 24},
+            [19279] = {length = 24},
+            [19280] = {length = 24},
+            [25467] = {length = 24},
+            [48299] = {length = 24},
+            [48300] = {length = 24},
+        },
+    },
 
     -- Druid spells.
     ["Rejuvenation"] = {

@@ -667,7 +667,7 @@ function TGUCT.OnUpdate()
                                                    cast_info.color.g,
                                                    cast_info.color.b)
 
-        local length  = cast_info.endTime - cast_info.startTime
+        local length  = (cast_info.endTime - cast_info.startTime)
         local percent = (currTime*1000 - cast_info.startTime)/length
         if percent < 0 then
             percent = 0
@@ -734,7 +734,8 @@ function TGUCT.OnUpdate()
         local cc = v.cleu_cast
         
         -- Get the cast bar
-        local percent = (currTime - ec.timestamp)/ec.castInfo.length
+        local haste   = (1 + GetHaste()/100)
+        local percent = haste*(currTime - ec.timestamp)/ec.castInfo.length
         if (percent > 1) then
             percent = 1
         end
