@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
-    <FontString name="TGUCTFont" font="Interface\AddOns\TGUF_2\Fonts\DUF_Font1.ttf" virtual="true">
+    <FontString name="TGUCTFont" font="Interface\AddOns\TGUF3\Fonts\DUF_Font1.ttf" virtual="true">
         <FontHeight>
             <AbsValue val="10"/>
         </FontHeight>
@@ -42,7 +42,7 @@
                 </Anchors>
                 <Layers>
                     <Layer level="BORDER">
-                        <Texture name="$parentTexture" file="Interface\AddOns\TGUF_2\DUF_Images\bg" setAllPoints="true"/>
+                        <Texture name="$parentTexture" file="Interface\AddOns\TGUF3\DUF_Images\bg" setAllPoints="true"/>
                     </Layer>
                     <Layer level="OVERLAY">
                         <Texture name="$parentSpark" file="Interface\CastingBar\UI-CastingBar-Spark" alphaMode="ADD">
