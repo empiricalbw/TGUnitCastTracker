@@ -10,13 +10,22 @@ end
 -- tracking.
 TGSpellDB.OVER_TIME_SPELL_LIST = {
     -- Priest spells.
-    --[[
     ["Renew"] = {
         texture = "Interface\\Icons\\Spell_Holy_Renew",
         tick    = 3,
-        ranks   = {},   -- length = 15
+        ranks   = {
+            [139]   = {length = 15},
+            [6074]  = {length = 15},
+            [6075]  = {length = 15},
+            [6076]  = {length = 15},
+            [6077]  = {length = 15},
+            [6078]  = {length = 15},
+            [10927] = {length = 15},
+            [10928] = {length = 15},
+            [10929] = {length = 15},
+            [25315] = {length = 15},
+        },
     },
-    ]]
     ["Shadow Word: Pain"] = {
         texture = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
         tick    = 3,
